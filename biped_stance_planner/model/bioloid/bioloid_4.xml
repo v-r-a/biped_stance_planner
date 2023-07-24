@@ -1,0 +1,250 @@
+<!-- Copyright 2023 Vyankatesh Ashtekar
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License. -->
+
+<mujoco model="bioloid_4">
+
+    <compiler angle="radian"/>
+    <size njmax="500" nconmax="100" nuserdata="100"/>
+    <option collision="all" 
+            integrator = "RK4" timestep = "0.001" 
+            jacobian = "dense" cone = "elliptic" impratio = "1" 
+            solver = "Newton" tolerance="1e-15"  
+            noslip_iterations="0" noslip_tolerance="1e-6" >
+        <flag energy="enable" fwdinv="enable" />
+    </option>
+
+    <asset>
+        <mesh name="torso" file="base_link.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="left_hip_bracket" file="left_hip_bracket.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="right_hip_bracket" file="right_hip_bracket.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="left_hip_xy" file="left_hip_xy.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="right_hip_xy" file="right_hip_xy.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="left_thigh" file="left_thigh.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="right_thigh" file="right_thigh.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="left_shin" file="left_shin.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="right_shin" file="right_shin.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="left_ankle_xy" file="left_ankle_xy.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="right_ankle_xy" file="right_ankle_xy.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="left_foot" file="left_foot.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="right_foot" file="right_foot.stl" scale="0.001 0.001 0.001"/>
+
+        <texture type="skybox" builtin="gradient" rgb1=".3 .5 .7" rgb2="0 0 0" width="512" height="512"/>
+        <texture name="body" type="cube" builtin="flat" mark="cross" width="127" height="1278"
+             rgb1="0.8 0.6 0.4" rgb2="0.8 0.6 0.4" markrgb="1 1 1" random="0.01"/>
+        <material name="body" texture="body" texuniform="true" rgba="0.8 0.6 .4 1"/>
+        <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1=".1 .2 .3" rgb2=".2 .3 .4"/>
+        <material name="grid" texture="grid" texrepeat="1 1" texuniform="true" reflectance=".2"/>
+    </asset>
+
+    <worldbody>
+        <geom name="floor" size="0 0 .05" type="plane" material="grid" condim="3" friction="1 0.005 0.0001"/>
+        
+        <light name="spotlight1" mode="targetbodycom" target="torso"
+           diffuse=".8 .8 .8" specular="0.3 0.3 0.3" pos="0 -20 4" cutoff="10"/>
+        <light name="spotlight2" mode="targetbodycom" target="torso"
+           diffuse=".8 .8 .8" specular="0.3 0.3 0.3" pos="0 20 4" cutoff="10"/>
+        
+        <camera name="mycam1" pos="-0.252 -0.668 0.379" xyaxes="0.927 -0.376 0.000 0.127 0.313 0.941"/>
+        <camera name="mycam2" pos="0.249 -0.603 0.151" xyaxes="0.898 0.439 0.000 0.026 -0.053 0.998"/>
+
+        <body name="torso" pos="0 0 0.01">
+            <geom type="mesh" mesh="torso" density = "550" />
+            <joint name="floating_base_joint" type="free"/>
+    
+                <site name="torso_site" type="sphere" size="0.005" pos="0 -0.05 0.22" rgba="0 1 1 1" />
+
+
+        <body name="left_hip_bracket" pos="0.032898 -0.043275 0.213727">
+            <!inertial pos="-2.71262e-06 -0.000517367 -0.0100637" quat="0.712877 0.701289 0 0" mass="0.0850289" diaginertia="8e-05 7.70164e-05 1.59836e-05"/>
+            <joint name="left_hip_yaw" pos="0 0 0" axis="0 0 -1" frictionloss="0.12" />
+            <geom pos="-0.032898 0.043275 -0.213727" type="mesh" mesh="left_hip_bracket" density = "500"/>
+            
+            <body name="left_hip_xy" pos="0 0.03625 -0.029">
+                <!inertial pos="-0.000457235 -0.0368842 -0.0128271" quat="0.713866 0.700105 -0.0151694 -0.00440234" mass="0.738775" diaginertia="0.000415181 0.000356044 0.000198775"/>
+                <joint name="left_hip_roll" pos="0 0 0" axis="0 1 0" frictionloss="0.12" />
+                <geom pos="-0.032898 0.007025 -0.184727" type="mesh" mesh="left_hip_xy" density="1700"/>
+                
+                <body name="left_thigh" pos="-0.021 -0.053 0">
+                    <!inertial pos="0.0209997 -0.0102143 -0.042207" quat="0.705288 -0.0506806 0.0506806 0.705288" mass="0.165757" diaginertia="0.0001383 9.1e-05 7.46998e-05"/>
+                    <joint name="left_hip_pitch" pos="0 0 0" axis="-1 0 0" frictionloss="0.12" />
+                    <geom pos="-0.011898 0.060025 -0.184727" type="mesh" mesh="left_thigh" density="800"/>
+                    
+                    <body name="left_shin" pos="0 -0.005406 -0.076197">
+                        <!inertial pos="0.0202383 -0.0104386 -0.0129004" quat="0.749321 0.0602856 -0.079069 0.654699" mass="0.457606" diaginertia="0.000252064 0.000246053 0.000146883"/>
+                        <joint name="left_knee_pitch" pos="0 0 0" axis="-1 0 0" frictionloss="0.12" />
+                        <geom pos="-0.011898 0.065431 -0.10853" type="mesh" mesh="left_shin" density="700"/>
+                        
+                        <body name="left_ankle_xy" pos="0 0.004371 -0.072334">
+                            <!inertial pos="0.0205428 0.0161156 0.0128269" quat="0.700105 0.713866 -0.00440234 -0.0151694" mass="0.738775" diaginertia="0.000415181 0.000356044 0.000198775"/>
+                            <joint name="left_ankle_pitch" pos="0 0 0" axis="-1 0 0" frictionloss="0.12" />
+                            <geom pos="-0.011898 0.06106 -0.036196" type="mesh" mesh="left_ankle_xy" density="1700"/>
+                            
+                            <body name="left_foot" pos="0.021 0.053 0">
+                                <!inertial pos="5.43686e-07 -0.0486332 -0.0259739" quat="0.486656 0.512997 -0.512997 0.486656" mass="0.247576" diaginertia="0.00028958 0.000242 8.04199e-05"/>
+                                <joint name="left_ankle_roll" pos="0 0 0" axis="0 1 0" frictionloss="0.12" />
+                                <geom pos="-0.032898 0.00806 -0.036196" type="mesh" mesh="left_foot" density="450" conaffinity="0" contype="0"/>
+                                <geom pos="0.022 -0.01825 -0.032" type="sphere" size="0.008" rgba="0 .9 0 1" density="0"/>
+                                <geom pos="0.022 -0.08825 -0.032" type="sphere" size="0.008" rgba="0 .9 0 1" density="0"/>
+                                <geom pos="-0.022 -0.08825 -0.032" type="sphere" size="0.008" rgba="0 .9 0 1" density="0"/>
+                                <geom pos="-0.022 -0.01825 -0.032" type="sphere" size="0.008" rgba="0 .9 0 1" density="0"/>
+                            
+                                <site name="left_foot_site" type="sphere" size="0.005" pos="0 -0.05325 -0.04" rgba="1 0 0 1" />
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+     
+
+        <body name="right_hip_bracket" pos="-0.033102 -0.043275 0.213727">
+            <!inertial pos="-2.71262e-06 -0.000517367 -0.0100637" quat="0.712877 0.701289 0 0" mass="0.0850289" diaginertia="8e-05 7.70164e-05 1.59836e-05"/>
+            <joint name="right_hip_yaw" pos="0 0 0" axis="0 0 -1" frictionloss="0.12" />
+            <geom pos="0.033102 0.043275 -0.213727" type="mesh" mesh="right_hip_bracket" density = "500"/>
+            
+            <body name="right_hip_xy" pos="0 0.03625 -0.029">
+                <!inertial pos="-0.000457235 -0.0368842 -0.0128271" quat="0.713866 0.700105 -0.0151694 -0.00440234" mass="0.738775" diaginertia="0.000415181 0.000356044 0.000198775"/>
+                <joint name="right_hip_roll" pos="0 0 0" axis="0 1 0" frictionloss="0.12" />
+                <geom pos="0.033102 0.007025 -0.184727" type="mesh" mesh="right_hip_xy" density="1700"/>
+               
+                <body name="right_thigh" pos="-0.021 -0.053 0">
+                    <!inertial pos="0.0209997 -0.0102143 -0.042207" quat="0.705288 -0.0506806 0.0506806 0.705288" mass="0.165757" diaginertia="0.0001383 9.1e-05 7.46998e-05"/>
+                    <joint name="right_hip_pitch" pos="0 0 0" axis="-1 0 0" frictionloss="0.12" />
+                    <geom pos="0.054102 0.060025 -0.184727" type="mesh" mesh="right_thigh" density="400"/>
+                  
+                    <body name="right_shin" pos="0 -0.005406 -0.076197">
+                        <!inertial pos="0.0202383 -0.0104386 -0.0129004" quat="0.749321 0.0602856 -0.079069 0.654699" mass="0.457606" diaginertia="0.000252064 0.000246053 0.000146883"/>
+                        <joint name="right_knee_pitch" pos="0 0 0" axis="-1 0 0" frictionloss="0.12" />
+                        <geom pos="0.054102 0.065431 -0.10853" type="mesh" mesh="right_shin" density="700"/>
+                     
+                        <body name="right_ankle_xy" pos="0 0.004371 -0.072334">
+                            <!inertial pos="0.0205428 0.0161156 0.0128269" quat="0.700105 0.713866 -0.00440234 -0.0151694" mass="0.738775" diaginertia="0.000415181 0.000356044 0.000198775"/>
+                            <joint name="right_ankle_pitch" pos="0 0 0" axis="-1 0 0" frictionloss="0.12" />
+                            <geom pos="0.054102 0.06106 -0.036196" type="mesh" mesh="right_ankle_xy" density="1700"/>
+                            
+                            <body name="right_foot" pos="0.021 0.053 0">
+                                <!inertial pos="5.43686e-07 -0.0486332 -0.0259739" quat="0.486656 0.512997 -0.512997 0.486656" mass="0.247576" diaginertia="0.00028958 0.000242 8.04199e-05"/>
+                                <joint name="right_ankle_roll" pos="0 0 0" axis="0 1 0" frictionloss="0.12" />
+                                <geom pos="0.033102 0.00806 -0.036196" type="mesh" mesh="right_foot" density="450" conaffinity="0" contype="0"/>
+                                <geom pos="0.022 -0.01825 -0.032" type="sphere" size="0.008" rgba="0 .9 0 1" density="0"/>
+                                <geom pos="0.022 -0.08825 -0.032" type="sphere" size="0.008" rgba="0 .9 0 1" density="0"/>
+                                <geom pos="-0.022 -0.08825 -0.032" type="sphere" size="0.008" rgba="0 .9 0 1" density="0"/>
+                                <geom pos="-0.022 -0.01825 -0.032" type="sphere" size="0.008" rgba="0 .9 0 1" density="0"/>
+                            
+                                <site name="right_foot_site" type="sphere" size="0.005" pos="0 -0.05325 -0.04" rgba="1 0 0 1" />                        
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+        </body>
+    </worldbody>
+
+    <contact>
+        <exclude body1="left_hip_bracket" body2="left_thigh"/>
+        <exclude body1="right_hip_bracket" body2="right_thigh"/>
+        <exclude body1="left_shin" body2="left_foot"/>
+        <exclude body1="right_shin" body2="right_foot"/>
+    </contact>
+
+    <actuator>
+        <motor name="LHY" joint="left_hip_yaw"/>
+        <motor name="LHR" joint="left_hip_roll"/>
+        <motor name="LHP" joint="left_hip_pitch"/>
+        <motor name="LKP" joint="left_knee_pitch"/>
+        <motor name="LAP" joint="left_ankle_pitch"/>
+        <motor name="LAR" joint="left_ankle_roll"/>
+
+        <motor name="RHY" joint="right_hip_yaw"/>
+        <motor name="RHR" joint="right_hip_roll"/>
+        <motor name="RHP" joint="right_hip_pitch"/>
+        <motor name="RKP" joint="right_knee_pitch"/>
+        <motor name="RAP" joint="right_ankle_pitch"/>
+        <motor name="RAR" joint="right_ankle_roll"/>
+    </actuator>
+
+    <!--equality>
+        <joint name="left_hip_yaw_lock" joint1="left_hip_yaw" />
+        <joint name="right_hip_yaw_lock" joint1="right_hip_yaw"/>
+        
+        <joint name="left_hip_roll_lock" joint1="left_hip_roll" />
+        <joint name="right_hip_roll_lock" joint1="right_hip_roll"/>
+        
+        <joint name="left_hip_pitch_lock" joint1="left_hip_pitch" />
+        <joint name="right_hip_pitch_lock" joint1="right_hip_pitch"/>
+
+        <joint name="left_knee_pitch_lock" joint1="left_knee_pitch" />
+        <joint name="right_knee_pitch_lock" joint1="right_knee_pitch"/>
+
+        <!joint name="left_ankle_pitch_lock" joint1="left_ankle_pitch" />
+        <joint name="right_ankle_pitch_lock" joint1="right_ankle_pitch" />
+
+        <!joint name="left_ankle_roll_lock" joint1="left_ankle_roll" polycoef="-0.32 0 0 0 0" />
+        <!joint name="left_ankle_roll_lock" joint1="left_ankle_roll"/>
+        <joint name="right_ankle_roll_lock" joint1="right_ankle_roll"/>
+    </equality-->
+
+    <sensor>
+        <framepos name="torso_site_pos" objtype="site" objname="torso_site"/>
+        <framequat name="torso_site_quat" objtype="site" objname="torso_site"/>
+
+        <framepos name="left_foot_site_pos" objtype="site" objname="left_foot_site"/>
+        <framequat name="left_foot_site_quat" objtype="site" objname="left_foot_site"/>
+
+        <framepos name="right_foot_site_pos" objtype="site" objname="right_foot_site"/>
+        <framequat name="right_foot_site_quat" objtype="site" objname="right_foot_site"/>
+        
+        <accelerometer name="torso_acc" site="torso_site"/>
+        <gyro name="toso_gyro" site="torso_site"/>
+        
+        <accelerometer name="left_foot_acc" site="left_foot_site"/>
+        <gyro name="left_foot_gyro" site="left_foot_site"/>
+        
+        <accelerometer name="right_foot_acc" site="right_foot_site"/>
+        <gyro name="right_foot_gyro" site="right_foot_site"/>
+
+        <subtreecom name="COM" body="torso"/>
+        <subtreelinvel name="COMvel" body="torso"/>
+
+        <subtreeangmom name="Hg" body="torso"/>
+    </sensor>
+
+
+    <keyframe>
+     <!--
+     The values below are split into rows for readibility:
+       floating frame position X Y Z
+       floating frame orientation quaternion 
+       rest
+    -->
+        <key name="stand_on_both_feet" qpos="
+            -0.000	-0.002	0.005	
+            1.000	-0.010	0.000	0.000	
+            0.000	-0.000	-0.003	-0.012	-0.004	0.000	
+            0.000	-0.000	-0.003	-0.012	-0.004	0.000"/>
+
+         <key name="stand_on_left_foot" qpos="
+             0.002	0.001	0.020	
+             0.986	0.048	0.159	-0.005	
+             0.005	0.010	-0.007	-0.013	0.115	-0.329	
+            -0.001	-0.003	0.004	0.011	0.005	-0.002"/>
+
+    </keyframe>
+
+    <visual>
+        <global offwidth="1280" offheight="720"/>
+    </visual>
+
+</mujoco>
