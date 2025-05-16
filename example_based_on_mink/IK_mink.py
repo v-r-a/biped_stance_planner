@@ -13,6 +13,10 @@ import mink
 model = None
 data = None
 
+all_mids = [0,1,2]
+nmids = 3
+curr_mid = all_mids[0]
+
 def keyboard_func(keycode):
     """
     Keyboard callback to toggle simulation pause.
@@ -76,7 +80,7 @@ def keyboard_func(keycode):
 def main():
     # Read the robot model
     if len(sys.argv) != 2:
-        print("Usage: python3 my_IK_program.py <path_to_model>")
+        print("Usage: python3 IK_mink.py <path_to_model>")
         sys.exit(1)
     
     model_path = sys.argv[1]
@@ -105,10 +109,13 @@ def main():
         else:
             name = model.body(i).name
             print(f"ID: {i}  Name: {name}")
-    values = list(map(int, input("Enter four mocap body IDs [hip, CoM, left foot, right foot] separated by space: ").split()))
+    values = list(map(int, input("Enter three mocap body IDs [hip, left foot, right foot] separated by space: ").split()))
     mocap_names_list = [model.body(i).name for i in values]
     mocap_IDs_list = [model.body_mocapid[value] for value in values]
-    print(f"Choosing hip mocap body: {mocap_names_list[0]},\n CoM mocap body: {mocap_names_list[1]},\n left foot: {mocap_names_list[2]},\n right foot: {mocap_names_list[3]}")
+    print(f"Choosing hip mocap body: {mocap_names_list[0]},\n left foot: {mocap_names_list[1]},\n right foot: {mocap_names_list[2]}")
+
+    global all_mids
+    all_mids = mocap_IDs_list.copy()
 
     # Choose keyframe to load
     # Print names of all the keyframes
@@ -125,11 +132,9 @@ def main():
     # Torso orientation
     base_orientation_task = mink.FrameTask(frame_name=site_names_list[0],
                                             frame_type="site",
-                                            position_cost=0.0,
+                                            position_cost=10.0,
                                             orientation_cost=5.0,
                                             lm_damping=1.0)
-    # Maintain COM at the said position
-    com_task = mink.ComTask(cost=10.0)
     # Maintain left foot position and orientation
     task_lf = mink.FrameTask(
             frame_name=site_names_list[1],
@@ -149,7 +154,6 @@ def main():
     # List of all the task objects    
     tasks_list = [base_orientation_task,
                 posture_task,
-                com_task,
                 task_lf,
                 task_rf]
 
@@ -169,18 +173,16 @@ def main():
 
         # Initialize position of mocap bodies at sites.
         mink.move_mocap_to_frame(model, data, mocap_names_list[0], site_names_list[0], "site") # Torso
-        data.mocap_pos[mocap_IDs_list[1]] = data.subtree_com[1]                              # CoM
-        mink.move_mocap_to_frame(model, data, mocap_names_list[2], site_names_list[1], "site") # LF
-        mink.move_mocap_to_frame(model, data, mocap_names_list[3], site_names_list[2], "site") # RF
+        mink.move_mocap_to_frame(model, data, mocap_names_list[1], site_names_list[1], "site") # LF
+        mink.move_mocap_to_frame(model, data, mocap_names_list[2], site_names_list[2], "site") # RF
 
         rate = RateLimiter(frequency=60.0, warn=False)
         while viewer.is_running():
 
             # Update task targets based on keyboard inputs / mouse drag
             base_orientation_task.set_target(mink.SE3.from_mocap_id(data, mocap_IDs_list[0]))            
-            com_task.set_target(data.mocap_pos[mocap_IDs_list[1]])
-            task_lf.set_target(mink.SE3.from_mocap_id(data, mocap_IDs_list[2]))
-            task_rf.set_target(mink.SE3.from_mocap_id(data, mocap_IDs_list[3]))
+            task_lf.set_target(mink.SE3.from_mocap_id(data, mocap_IDs_list[1]))
+            task_rf.set_target(mink.SE3.from_mocap_id(data, mocap_IDs_list[2]))
             
             vel = mink.solve_ik(brs1_config, tasks_list, rate.dt, "quadprog", 1e-1)
 
