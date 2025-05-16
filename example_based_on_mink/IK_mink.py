@@ -13,11 +13,6 @@ import mink
 model = None
 data = None
 
-# Mocap body IDs list
-all_mids = [0,1,2]
-curr_mid = all_mids[0]
-nmids = 3
-
 def keyboard_func(keycode):
     """
     Keyboard callback to toggle simulation pause.
