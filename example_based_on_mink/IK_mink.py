@@ -158,9 +158,6 @@ def main():
                 task_lf,
                 task_rf]
 
-    # IDs of the mocap bodies
-
-
     # Initialise mink configuration class object
     brs1_config = mink.Configuration(model)
     model = brs1_config.model
