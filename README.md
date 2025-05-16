@@ -1,5 +1,5 @@
 # biped stance planner based on mink
-A Python program to easily define the posture of a biped based on [mink]([url](https://github.com/kevinzakka/mink))
+A Python program to easily define the posture of a biped based on [mink](https://github.com/kevinzakka/mink)
 
 # biped_stance_planner
 A simple biped stance planner utility based on MuJoCo. 
