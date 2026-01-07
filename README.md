@@ -12,6 +12,6 @@ Run example:
 
 # biped_stance_planner
 A simple biped stance planner utility based on MuJoCo. 
-Youtube [video]([url](https://youtu.be/YgbTHLkArLw)) 
+Youtube [video](https://youtu.be/YgbTHLkArLw)
 
 Torso, left foot and right foot position and orientation can be adjusted to obtain a suitable robot posture.
